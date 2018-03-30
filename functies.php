@@ -24,7 +24,7 @@ function mysql_query($query)
 {
 	global $pdo;
 	$prep = $pdo->prepare($query);
-	$prep->execute($vars);
+	$prep->execute([]);
 	return $prep;
 
 }
