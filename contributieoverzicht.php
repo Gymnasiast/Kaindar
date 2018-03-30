@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 $minjaar=eenregel("SELECT MIN(DATE_FORMAT(datum, '%Y')) FROM mutaties;");
 $maxjaar=eenregel("SELECT MAX(DATE_FORMAT(datum, '%Y')) FROM mutaties;");
 echo '<html><head><title>Grootboek</title><style type="text/css">
@@ -12,10 +11,10 @@ border: 1px #000000;
 </head><body>
 	';
 	echo '<a href="index.php">Terug naar hoofdmenu</a><br />';
-if (!$_POST)
+if (!$_GET['jaar'])
 {
 	?>
-	<form method="post" action="contributieoverzicht.php">
+	<form method="get" action="contributieoverzicht.php">
 	Jaar: <select name="jaar">
 	<?php
 	$grootboekjaar=eenregel("SELECT waarde FROM instellingen WHERE instelling=\"grootboekjaar\" ;");
@@ -37,7 +36,7 @@ if (!$_POST)
 }
 else
 {
-	$jaar=$_POST['jaar'];
+	$jaar=$_GET['jaar'];
 	$iedereen=mysql_query("SELECT DISTINCT commentaar FROM mutaties WHERE (code='CON' AND DATE_FORMAT(datum, '%Y')=$jaar) OR (code='VBC$jaar') ORDER BY commentaar ASC;");
 	while ($persoon=mysql_fetch_assoc($iedereen))
 	{
@@ -76,6 +75,5 @@ else
 		echo '<br />Totaal vooruitbetaalde contributie: &euro; '.number_format($tv, 2, ',', '.').'<br /><br />';
 	}
 }
-disconnect();
 ?>
 </body></html>
