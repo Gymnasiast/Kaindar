@@ -11,7 +11,7 @@ border: 1px #000000;
 </head><body>
 	';
 	echo '<a href="index.php">Terug naar hoofdmenu</a><br />';
-if (!$_GET['jaar'])
+if (!@$_GET['jaar'])
 {
 	?>
 	<form method="get" action="contributieoverzicht.php">

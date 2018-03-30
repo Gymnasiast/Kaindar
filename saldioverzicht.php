@@ -1,6 +1,6 @@
 <?php
 require_once('functies.php');
-$afkorting=$_GET['afkorting'];
+$afkorting = $_GET['afkorting'] ?? '';
 if (!$afkorting)
 {
 	$rekeningstring='';

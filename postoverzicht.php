@@ -3,11 +3,7 @@ require_once('functies.php');
 $afkorting=$_GET['afkorting'];
 $maxjaar=eenregel("SELECT MAX(DATE_FORMAT(datum, '%Y')) FROM mutaties WHERE rekening=\"$afkorting\" ;");
 $minjaar=eenregel("SELECT MIN(DATE_FORMAT(datum, '%Y')) FROM mutaties WHERE rekening=\"$afkorting\" ;");
-$jaar=$_POST['jaar'];
-if (!$jaar)
-{
-	$jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\" ;");
-}
+$jaar = $_POST['jaar'] ?? eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\" ;");;
 $posten=mysql_query('SELECT DISTINCT m.code, omschrijving, SUM(bij), SUM(af), SUM(ROUND((bij*(btw/(100+btw))), 2)) AS "Ontvangen BTW", SUM(ROUND((af*(btw/(100+btw))), 2)) AS "Betaalde BTW" FROM mutaties m, codes c WHERE m.code=c.code AND DATE_FORMAT(datum, \'%Y\')=' . $jaar . ' AND rekening="'.$afkorting.'" GROUP BY m.code ORDER BY omschrijving ASC;');
 ?>
 <html>

@@ -5,13 +5,14 @@ body
 }
 table
 {
-	border: 1px solid;
-	border-color: #000000;
-	border-collapse: collapse;
+    border: 1px solid #000000;
+    border-collapse: collapse;
 }
 th
 {
 	background: #008B8B;
+	color: white;
+    text-align: left;
 }
 td, th
 {

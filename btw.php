@@ -2,11 +2,8 @@
 require_once('functies.php');
 $maxjaar=eenregel("SELECT MAX(DATE_FORMAT(datum, '%Y')) FROM mutaties ;");
 $minjaar=eenregel("SELECT MIN(DATE_FORMAT(datum, '%Y')) FROM mutaties ;");
-$jaar=$_POST['jaar'];
-if (!$jaar)
-{
-	$jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\" ;");
-}
+$jaar = $_POST['jaar'] ?? $jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\" ;");
+
 $btwbij=mysql_query("SELECT DISTINCT btw, SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE bij<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$jaar GROUP BY btw ;");
 $btwaf=mysql_query("SELECT DISTINCT btw, SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE af<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$jaar GROUP BY btw ;");
 $btwbijttlz0=mysql_query("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$jaar ;");
