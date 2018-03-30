@@ -35,8 +35,6 @@ while ($afschrijvingentabel=mysql_fetch_assoc($afschrijvingen))
 }
 echo '</table>Totaal: &euro; ' . number_format($totaal, 2, ',', '.');
 disconnect();
-echo '
+?>
 </body>
 </html>
-';
-?>

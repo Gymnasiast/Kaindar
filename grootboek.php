@@ -82,5 +82,5 @@ else
 		}	
 	}
 }
-echo '</body></html>';
 ?>
+</body></html>

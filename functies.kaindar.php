@@ -36,4 +36,3 @@ function geefHuidigSaldo($rekening='')
 	}
 	return eenregel('SELECT SUM(bij)-SUM(af) FROM mutaties'.$rekeningstring.';');
 }
-?>

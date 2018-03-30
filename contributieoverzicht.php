@@ -77,5 +77,5 @@ else
 	}
 }
 disconnect();
-echo '</body></html>';
 ?>
+</body></html>

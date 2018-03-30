@@ -48,4 +48,3 @@ function eenregel($query)
 		return $resultaat;
 	}
 }
-?>
