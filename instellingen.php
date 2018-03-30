@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 if (!empty($_POST))
 {
 	$jaar=$_POST['jaar'];
@@ -32,7 +31,6 @@ while ($teller>=$minjaar)
 	echo " value=\"$teller\">$teller</option>";
 	$teller--;
 }
-disconnect();
 ?>
 	</select><br />
 	Standaardjaar voor grootboek: <select name="grootboekjaar">

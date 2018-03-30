@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 $afkorting=$_GET['afkorting'];
 if (!$afkorting)
 {

@@ -1,24 +1,7 @@
 <?php
+require 'config.php';
 require_once('functies.kaindar.php');
-$pdo = new PDO('mysql:host=localhost;dbname=-;charset=utf8','-','-');
-
-function connect()
-{
-	return;
-	/*// Alleen doorgaan als het verbinden lukt.
-	if (mysql_connect("localhost", "-", "-") AND mysql_select_db("administratie"))
-	{
-	}
-	else
-	{
-		die("Kan niet verbinden met database");
-	}*/
-}
-function disconnect()
-{
-	// Database netjes afsluiten
-	//mysql_close();
-}
+$pdo = new PDO('mysql:host=' . $dbHost . ';dbname=' . $dbName . ';charset=utf8',$dbUser,$dbPass);
 
 function mysql_query($query)
 {
@@ -36,6 +19,11 @@ function mysql_fetch_row($mysql_query_result)
 function mysql_fetch_assoc($mysql_query_result)
 {
 	return $mysql_query_result->fetch();
+}
+
+function mysql_num_rows(PDOStatement $mysql_query_result)
+{
+    return $mysql_query_result->rowCount();
 }
 
 function eenregel($query)

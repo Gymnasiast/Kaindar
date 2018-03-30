@@ -10,7 +10,6 @@ echo '
 <a href="index.php">Terug naar het hoofdmenu</a>
 </p>
 ';
-connect();
 $bijschrijvingen=mysql_query("SELECT omschrijving, SUM(bij)-SUM(af) AS bedrag FROM codes,mutaties WHERE codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=(SELECT waarde FROM instellingen WHERE instelling='grootboekjaar') GROUP BY omschrijving HAVING bedrag>=0");
 $afschrijvingen=mysql_query("SELECT omschrijving, SUM(af)-SUM(bij) AS bedrag FROM codes,mutaties WHERE codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=(SELECT waarde FROM instellingen WHERE instelling='grootboekjaar') GROUP BY omschrijving HAVING bedrag>0");
 $jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling='grootboekjaar' ;");
@@ -33,7 +32,6 @@ while ($afschrijvingentabel=mysql_fetch_assoc($afschrijvingen))
 	echo "<td class=\"right\">&euro; " . number_format($afschrijvingentabel['bedrag'], 2, ',', '.') ."</td></tr>";
 }
 echo '</table>Totaal: &euro; ' . number_format($totaal, 2, ',', '.');
-disconnect();
 ?>
 </body>
 </html>

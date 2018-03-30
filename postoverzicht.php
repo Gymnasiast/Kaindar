@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 $afkorting=$_GET['afkorting'];
 $maxjaar=eenregel("SELECT MAX(DATE_FORMAT(datum, '%Y')) FROM mutaties WHERE rekening=\"$afkorting\" ;");
 $minjaar=eenregel("SELECT MIN(DATE_FORMAT(datum, '%Y')) FROM mutaties WHERE rekening=\"$afkorting\" ;");

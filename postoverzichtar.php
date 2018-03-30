@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 $maxjaar=eenregel("SELECT MAX(DATE_FORMAT(datum, '%Y')) FROM mutaties ;");
 $minjaar=eenregel("SELECT MIN(DATE_FORMAT(datum, '%Y')) FROM mutaties ;");
 $jaar=$_POST['jaar'];

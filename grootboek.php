@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 $minjaar=eenregel("SELECT MIN(DATE_FORMAT(datum, '%Y')) FROM mutaties;");
 $maxjaar=eenregel("SELECT MAX(DATE_FORMAT(datum, '%Y')) FROM mutaties;");
 $posten=mysql_query('SELECT code,omschrijving FROM codes ORDER BY omschrijving');

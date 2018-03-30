@@ -9,7 +9,6 @@ require_once('functies.php');
 Rekeningen:<br>
 <ul>
 <?php
-connect();
 $rekeningen=mysql_query("SELECT afkorting, omschrijving FROM rekeningen;");
 while (list($afkorting, $omschrijving) = mysql_fetch_row($rekeningen))
 {

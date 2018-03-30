@@ -2,7 +2,6 @@
 require_once('functies.php');
 require_once('functies.kaindar.php');
 
-connect();
 $afkorting=$_GET['afkorting'];
 $toonjaar=$_GET['toonjaar'];
 if (!empty($_POST))
@@ -76,8 +75,6 @@ if ($toonjaar= (int)$toonjaar) {
 else { $jaarstring=""; }}
 else { $jaarstring=""; }
 $mutatiess = "SELECT m.id, code, \"Fout: onbekende code\", datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m WHERE code NOT IN ( SELECT code FROM codes ) AND rekening=\"$afkorting\" UNION SELECT m.id, m.code, omschrijving, datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m, codes c WHERE m.code=c.code AND rekening=\"$afkorting\" $jaarstring ORDER BY datum DESC, id DESC;";
-#$mutatiess = "SELECT id, code, \"Fout: onbekende code\", datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m WHERE code NOT IN ( SELECT code FROM codes ) AND rekening=\"$afkorting\" UNION SELECT id, m.code, omschrijving, datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m, codes c WHERE m.code=c.code AND rekening=\"$afkorting\" $jaarstring AND m.code<>'CON' UNION SELECT id, m.code, omschrijving, datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, \" \", bij, af, btw FROM mutaties m, codes c WHERE m.code=c.code AND rekening=\"$afkorting\" $jaarstring AND m.code='CON' ORDER BY datum DESC, id DESC;";
-#echo $mutatiess;
 $mutaties = mysql_query($mutatiess);
 while (list($id, $code, $omschrijving, $datumobs, $datum, $commentaar, $bij, $af, $btw) = mysql_fetch_row($mutaties))
 {
@@ -93,7 +90,6 @@ while (list($id, $code, $omschrijving, $datumobs, $datum, $commentaar, $bij, $af
 		<td><a href=\"bewerkmutatie.php?actie=verwijderen&id=$id\"><img src=\"afb/verwijderen.png\" alt=\"Verwijder deze mutatie\" /></a></td>
 		</tr>";
 }
-disconnect();
 ?>
 </table>
 </body>

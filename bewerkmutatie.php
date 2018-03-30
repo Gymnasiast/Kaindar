@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 $id=$_GET['id'];
 $actie=$_GET['actie'];
 ?>
@@ -88,7 +87,6 @@ else
 		<?php
 	}
 }
-disconnect();
 ?>
 </body>
 </html>

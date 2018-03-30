@@ -1,6 +1,5 @@
 <?php
 require_once('functies.php');
-connect();
 if(!empty($_POST))
 {
 	$code=$_POST['code'];

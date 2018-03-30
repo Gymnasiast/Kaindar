@@ -10,7 +10,6 @@ echo '
 <a href="index.php">Terug naar het hoofdmenu</a>
 </p>
 ';
-connect();
 $jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling='grootboekjaar' ;");
 $bijschrijvingen=mysql_query("SELECT omschrijving, SUM(bij)-SUM(af) AS bedrag FROM codes,mutaties WHERE mutaties.code NOT IN (SELECT code FROM codes c WHERE (c.code LIKE \"C20%\" OR c.code LIKE \"D20%\" OR c.code LIKE \"VBC20%\")) AND codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=(SELECT waarde FROM instellingen WHERE instelling='grootboekjaar') GROUP BY omschrijving HAVING bedrag>=0 UNION SELECT omschrijving, SUM(bij)-SUM(af) AS bedrag FROM codes,mutaties WHERE (mutaties.code=\"C$jaar\" OR mutaties.code=\"D$jaar\" OR mutaties.code=\"VBC$jaar\") AND codes.code=mutaties.code GROUP BY omschrijving HAVING bedrag>0 ");
 $afschrijvingen=mysql_query("SELECT omschrijving, SUM(af)-SUM(bij) AS bedrag FROM codes,mutaties WHERE mutaties.code NOT IN (SELECT code FROM codes c WHERE (c.code LIKE \"C20%\" OR c.code LIKE \"D20%\" OR c.code LIKE \"VBC20%\")) AND codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=(SELECT waarde FROM instellingen WHERE instelling='grootboekjaar') GROUP BY omschrijving HAVING bedrag>0 UNION SELECT omschrijving, SUM(af)-SUM(bij) AS bedrag FROM codes,mutaties WHERE (mutaties.code=\"C$jaar\" OR mutaties.code=\"D$jaar\" OR mutaties.code=\"VBC$jaar\") AND codes.code=mutaties.code GROUP BY omschrijving HAVING bedrag>0 ");
@@ -34,7 +33,6 @@ while ($afschrijvingentabel=mysql_fetch_assoc($afschrijvingen))
 	echo "<td class=\"right\">&euro; " . number_format($afschrijvingentabel['bedrag'], 2, ',', '.') ."</td></tr>";
 }
 echo '</table>Totaal: &euro; ' . number_format($totaal, 2, ',', '.');
-disconnect();
 ?>
 </body>
 </html>
