@@ -3,8 +3,6 @@ namespace Kaindar;
 
 use Cyndaron\DBConnection;
 use Cyndaron\Instelling;
-use Cyndaron\Url;
-use Cyndaron\Widget\Knop;
 
 /*
  * Copyright © 2009-2017, Michael Steenbeek
@@ -28,17 +26,12 @@ class Pagina
     protected $extraMeta = "";
     protected $paginanaam = "";
     protected $titelknoppen = null;
-    protected $connectie = null;
     protected $nietDelen = false;
     protected $extraScripts = [];
     protected $websitenaam = '';
 
     public function __construct($paginanaam)
     {
-//        if ($this->connectie == null)
-//        {
-//            $this->connectie = DBConnection::getPDO();
-//        }
 
         $this->paginanaam = $paginanaam;
     }
