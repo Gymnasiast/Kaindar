@@ -1,12 +1,13 @@
 <?php
 namespace Kaindar;
 
-require_once('functies.php');
+use Cyndaron\DBConnection;
+
 if (!empty($_POST))
 {
     $code = $_POST['code'];
     $omschrijving = $_POST['omschrijving'];
-    mysql_query("INSERT INTO codes VALUES (\"$code\", \"$omschrijving\", 0, 0) ;");
+    DBConnection::doQuery('INSERT INTO codes VALUES (?, ?, 0, 0)', [$code, $omschrijving]);
 }
 
 $pagina = new Pagina('Codes');
@@ -34,8 +35,8 @@ $pagina->toonPrepagina();
     <th>Omschrijving</th>
 </tr>
 <?php
-$codes = mysql_query("SELECT code, omschrijving FROM codes ORDER BY omschrijving ASC;");
-while (list($code, $omschrijving) = mysql_fetch_row($codes))
+$codes = DBConnection::doQueryAndReturnFetchable("SELECT code, omschrijving FROM codes ORDER BY omschrijving ASC;");
+while (list($code, $omschrijving) = $codes->fetch())
 {
     echo "<tr><td>$code</td><td>$omschrijving</td></tr>";
 }

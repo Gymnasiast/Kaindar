@@ -1,6 +1,7 @@
 <?php
 namespace Kaindar;
 
+use Cyndaron\DBConnection;
 use Cyndaron\Instelling;
 use Cyndaron\Url;
 use Cyndaron\Widget\Knop;
@@ -132,8 +133,7 @@ class Pagina
 
     protected function toonMenu()
     {
-        $alleRekeningen = geefAlleRekeningen();
-        $alleRekeningen[] = ['afkorting' => '', 'omschrijving' => 'Alle rekeningen'];
+        $alleRekeningen = Util::geefAlleRekeningen();
 
         ?>
         <nav class="navbar menu navbar-expand-lg navbar-light bg-light">
@@ -144,12 +144,20 @@ class Pagina
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="#">Home</a>-->
-<!--                    </li>-->
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="#">Link</a>-->
-<!--                    </li>-->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Rek. bijwerken
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <?php
+                            foreach ($alleRekeningen as $rekening)
+                            {
+                                $jaar = DBConnection::doQueryAndFetchOne('SELECT MAX(jaar) FROM (SELECT DATE_FORMAT(datum, "%Y") as jaar FROM mutaties WHERE rekening=?) AS een', [$rekening['afkorting']]);
+                                printf('<a class="dropdown-item" href="/rekeningbijwerken?afkorting=%s&amp;toonjaar=%d">%s</a>', $rekening['afkorting'], $jaar, $rekening['omschrijving']);
+                            }
+                            ?>
+                        </div>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Maandsaldi
@@ -160,6 +168,7 @@ class Pagina
                             {
                                 printf('<a class="dropdown-item" href="/saldioverzicht?afkorting=%s">%s</a>', $rekening['afkorting'], $rekening['omschrijving']);
                             }
+                            echo '<a class="dropdown-item" href="/saldioverzicht">Alle rekeningen</a>';
                             ?>
                         </div>
                     </li>
@@ -173,6 +182,7 @@ class Pagina
                             {
                                 printf('<a class="dropdown-item" href="/postoverzicht?afkorting=%s">%s</a>', $rekening['afkorting'], $rekening['omschrijving']);
                             }
+                            echo '<a class="dropdown-item" href="/postoverzicht">Alle rekeningen</a>';
                             ?>
                         </div>
                     </li>
@@ -250,43 +260,6 @@ class Pagina
     public function voegScriptToe($scriptnaam)
     {
         $this->extraScripts[] = $scriptnaam;
-    }
-
-    public function geefMenu()
-    {
-        return [];
-        global $pdo;
-        $menu = $pdo->prepare('SELECT * FROM menu ORDER BY volgorde ASC;');
-        $menu->execute();
-        $menuitems = null;
-        $eersteitem = true;
-
-        foreach ($menu->fetchAll() as $menuitem)
-        {
-            $url = new Url($menuitem['link']);
-
-            if ($menuitem['alias'])
-            {
-                $menuitem['naam'] = strtr($menuitem['alias'], [' ' => '&nbsp;']);
-            }
-            else
-            {
-                $menuitem['naam'] = $url->geefPaginanaam();
-            }
-
-            if ($eersteitem)
-            {
-                // De . is nodig omdat het menu anders niet goed werkt in subdirectories.
-                $menuitem['link'] = './';
-            }
-            else
-            {
-                $menuitem['link'] = $url->geefFriendly();
-            }
-            $menuitems[] = $menuitem;
-            $eersteitem = false;
-        }
-        return $menuitems;
     }
 
     public static function toonIndienAanwezig($string, $voor = null, $na = null)

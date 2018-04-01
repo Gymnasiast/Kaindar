@@ -1,37 +1,57 @@
 <?php
-
 namespace Kaindar;
 
-require_once('functies.php');
+use Cyndaron\DBConnection;
+use Cyndaron\Instelling;
 
-$jaar = $_GET['jaar'] ?? eenregel("SELECT waarde FROM instellingen WHERE instelling='jaar' ;");
+$jaar = $_GET['jaar'] ?? Instelling::geefInstelling('jaar');
 
 $pagina = new Pagina('Staat van inkomsten en uitgaven ' . $jaar);
 $pagina->toonPrepagina();
 
-$bijschrijvingen = mysql_query("SELECT omschrijving, SUM(bij)-SUM(af) AS bedrag FROM codes,mutaties WHERE codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=(SELECT waarde FROM instellingen WHERE instelling='grootboekjaar') GROUP BY omschrijving HAVING bedrag>=0");
-$afschrijvingen = mysql_query("SELECT omschrijving, SUM(af)-SUM(bij) AS bedrag FROM codes,mutaties WHERE codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=(SELECT waarde FROM instellingen WHERE instelling='grootboekjaar') GROUP BY omschrijving HAVING bedrag>0");
+$bijschrijvingen = DBConnection::doQueryAndReturnFetchable("SELECT omschrijving, SUM(bij)-SUM(af) AS bedrag FROM codes,mutaties WHERE codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=? GROUP BY omschrijving HAVING bedrag>=0", [$jaar]);
+$afschrijvingen = DBConnection::doQueryAndReturnFetchable("SELECT omschrijving, SUM(af)-SUM(bij) AS bedrag FROM codes,mutaties WHERE codes.iskruispost=0 AND codes.code=mutaties.code AND DATE_FORMAT(datum, '%Y')=? GROUP BY omschrijving HAVING bedrag>0", [$jaar]);
+
+?>
+<form method="get" action="/inkomstenuitgaven">
+    Jaar: <select name="jaar">
+        <?php
+        foreach (Util::geefAlleJaren() as $teller)
+        {
+            echo '<option';
+            if ($jaar == $teller)
+            {
+                echo ' selected';
+            }
+            echo ' name="' . $teller . '">' . $teller . '</option>';
+        }
+        ?>
+    </select>
+
+    <input type="submit" value="Bekijken"/>
+</form>
+<?php
 
 echo '<h2>Inkomsten</h2>
 <table class="table table-bordered table-striped table-notstretched">';
 $totaal = 0;
-while ($bijschrijvingentabel = mysql_fetch_assoc($bijschrijvingen))
+while ($bijschrijvingentabel = $bijschrijvingen->fetch())
 {
     echo "<tr><td>" . $bijschrijvingentabel['omschrijving'] . "</td>";
     $totaal += $bijschrijvingentabel['bedrag'];
-    echo "<td class=\"text-right\">&euro; " . number_format($bijschrijvingentabel['bedrag'], 2, ',', '.') . "</td></tr>";
+    echo "<td class=\"text-right\">" . Util::naarEuro($bijschrijvingentabel['bedrag']) . "</td></tr>";
 }
-echo '</table>Totaal: ' . naarEuro($totaal) . '
+echo '</table>Totaal: ' . Util::naarEuro($totaal) . '
 <br />
 <h2>Uitgaven</h2>
 <table class="table table-bordered table-striped table-notstretched">';
 $totaal = 0;
-while ($afschrijvingentabel = mysql_fetch_assoc($afschrijvingen))
+while ($afschrijvingentabel = $afschrijvingen->fetch())
 {
     echo "<tr><td>" . $afschrijvingentabel['omschrijving'] . "</td>";
     $totaal += $afschrijvingentabel['bedrag'];
-    echo "<td class=\"text-right\">&euro; " . number_format($afschrijvingentabel['bedrag'], 2, ',', '.') . "</td></tr>";
+    echo "<td class=\"text-right\">" . Util::naarEuro($afschrijvingentabel['bedrag']) . "</td></tr>";
 }
-echo '</table>Totaal: ' . naarEuro($totaal);
+echo '</table>Totaal: ' . Util::naarEuro($totaal);
 
 $pagina->toonPostPagina();

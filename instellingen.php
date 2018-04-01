@@ -1,15 +1,17 @@
 <?php
 namespace Kaindar;
 
-require_once('functies.php');
+use Cyndaron\DBConnection;
+use Cyndaron\Instelling;
+
 if (!empty($_POST))
 {
     $jaar = $_POST['jaar'];
-    mysql_query("UPDATE instellingen SET waarde=\"$jaar\" WHERE instelling=\"jaar\" ;");
+    DBConnection::doQuery('UPDATE instellingen SET `waarde`=? WHERE `instelling`="jaar"', [$jaar]);
 }
 
-$jaren = geefAlleJaren();
-$jaar = eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\" ;");
+$jaren = Util::geefAlleJaren();
+$jaar = Instelling::geefInstelling('jaar');
 
 $pagina = new Pagina('Instellingen');
 $pagina->toonPrepagina();

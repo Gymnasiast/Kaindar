@@ -1,8 +1,11 @@
 <?php
 
+use Cyndaron\DBConnection;
+
 /**
  * Kaindar autoloader (PSR-4)
  */
+
 spl_autoload_register(function ($class)
 {
     // project-specific namespace prefix
@@ -67,6 +70,20 @@ spl_autoload_register(function ($class)
         require $file;
     }
 });
+
+{
+    $dbHost = 'localhost';
+    $dbName = 'kaindar';
+    $dbUser = 'root';
+    $dbPass = '';
+
+    include "config.php";
+
+    if (!DBConnection::connect($dbHost, $dbName, $dbUser, $dbPass))
+    {
+        die('Kon niet verbinden met de database!');
+    }
+}
 
 $pagina = $_GET['pagina'] ?? '';
 

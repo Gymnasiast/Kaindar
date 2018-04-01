@@ -1,25 +1,23 @@
 <?php
 
 namespace Kaindar;
-require_once('functies.php');
-
 
 $pagina = new Pagina('Hoofdmenu');
 $pagina->toonPrepagina();
+
+$alleRekeningen = Util::geefAlleRekeningen();
 
 ?>
     Rekeningen:<br>
     <ul>
         <?php
-        $rekeningen = mysql_query("SELECT afkorting, omschrijving FROM rekeningen;");
-        while (list($afkorting, $omschrijving) = mysql_fetch_row($rekeningen))
+        foreach ($alleRekeningen as $rekening)
         {
-            echo '<li>' . $omschrijving . ': ';
+            echo '<li>' . $rekening['omschrijving'] . ': ';
 
-            $data = mysql_query("SELECT distinct DATE_FORMAT(datum, '%Y') FROM mutaties WHERE rekening='$afkorting' ORDER BY 1 DESC;");
-            while (list($jaar) = mysql_fetch_row($data))
+            foreach (Util::geefAlleJaren(' WHERE rekening="' . $rekening['afkorting'] . '"') as $jaar)
             {
-                echo '<a href="rekeningbijwerken?afkorting=' . $afkorting . '&toonjaar=' . $jaar . '">' . $jaar . '&nbsp;&nbsp;&nbsp;</a>';
+                echo '<a href="rekeningbijwerken?afkorting=' . $rekening['afkorting'] . '&toonjaar=' . $jaar . '">' . $jaar . '&nbsp;&nbsp;&nbsp;</a>';
             }
             echo '</li>';
         }
@@ -29,7 +27,7 @@ $pagina->toonPrepagina();
     Maandsaldi en cashflow:<br>
     <ul>
         <?php
-        foreach (geefAlleRekeningen() as $rekening)
+        foreach ($alleRekeningen as $rekening)
         {
             echo '<li><a href="saldioverzicht?afkorting=' . $rekening['afkorting'] . '">' . $rekening['omschrijving'] . '</a></li>';
         }
@@ -39,7 +37,7 @@ $pagina->toonPrepagina();
     Opgetelde posten:<br>
     <ul>
         <?php
-        foreach (geefAlleRekeningen() as $rekening)
+        foreach (Util::geefAlleRekeningen() as $rekening)
         {
             echo '<li><a href="postoverzicht?afkorting=' . $rekening['afkorting'] . '">' . $rekening['omschrijving'] . '</a></li>';
         }

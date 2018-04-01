@@ -28,14 +28,22 @@ class Instelling
     public static function geefInstelling($naam, $escape = false)
     {
         $connectie = DBConnection::getPDO();
-        $setting = $connectie->prepare('SELECT waarde FROM instellingen WHERE naam= ?');
-        $setting->execute([$naam]);
-        if (!$escape)
-        {
-            return $setting->fetchColumn();
-        }
+        $setting = $connectie->prepare('SELECT `waarde` FROM instellingen WHERE naam= ?');
 
-        return htmlspecialchars($setting->fetchColumn(), ENT_COMPAT | ENT_HTML5, 'UTF-8', false);
+        if ($setting === false)
+        {
+            return '';
+        }
+        else
+        {
+            $setting->execute([$naam]);
+            if (!$escape)
+            {
+                return $setting->fetchColumn();
+            }
+
+            return htmlspecialchars($setting->fetchColumn(), ENT_COMPAT | ENT_HTML5, 'UTF-8', false);
+        }
     }
 
     public static function maakInstelling($naam, $waarde)

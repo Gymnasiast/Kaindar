@@ -1,15 +1,14 @@
 <?php
+namespace Kaindar;
 
-use Kaindar\Pagina;
-
-require_once('functies.php');
-require_once('functies.kaindar.php');
+use Cyndaron\DBConnection;
+use Cyndaron\Instelling;
 
 $pagina = new Pagina('Rekening bijwerken');
 $pagina->toonPrepagina();
 
 $afkorting = $_GET['afkorting'];
-$toonjaar = $_GET['toonjaar'];
+$toonjaar = intval($_GET['toonjaar']);
 if (!empty($_POST))
 {
     $code = $_POST['code'];
@@ -35,9 +34,9 @@ if (!empty($_POST))
     {
         $btw = 0;
     }
-    mysql_query("INSERT INTO mutaties VALUES (NULL, \"$afkorting\", \"$code\", '$datum', \"$commentaar\", \"$bij\", \"$af\", \"$btw\");");
+    DBConnection::doQueryAndReturnFetchable("INSERT INTO mutaties VALUES (NULL, \"$afkorting\", \"$code\", '$datum', \"$commentaar\", \"$bij\", \"$af\", \"$btw\");");
 }
-$jaar = eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\";");
+$jaar = Instelling::geefInstelling('jaar');
 echo '
 <form method="post" action="rekeningbijwerken?afkorting=' . $afkorting . ($toonjaar > 0 ? '&amp;toonjaar=' . $toonjaar : '') . '">';
 ?>
@@ -51,7 +50,7 @@ echo '
             <td>
                 <input type="text" maxlength="2" size="2" class="form-control form-control-inline" name="dag" id="dag" placeholder="dd"/>
                 <input type="text" maxlength="2" size="2" class="form-control form-control-inline" name="maand" id="maand" placeholder="mm"/>
-                <input type="text" maxlength="4" size="4" class="form-control form-control-inline" name="jaar" id="jaar" value="<?php echo $jaar ?>"/>
+                <input type="text" maxlength="4" size="4" class="form-control form-control-inline" name="jaar" id="jaar" value="<?=$jaar; ?>"/>
             </td>
         </tr>
         <tr>
@@ -98,29 +97,27 @@ echo '
     </form>
     <table>
         <tr>
-            <td><br/>Huidig saldo: &euro;
+            <td><br/>
                 <?php
-                $saldo = eenregel("SELECT SUM(bij)-SUM(af) FROM mutaties WHERE rekening=\"$afkorting\";");
-                if ($toonjaar = (int)$toonjaar)
+                $saldo = DBConnection::doQueryAndFetchOne('SELECT SUM(bij)-SUM(af) FROM mutaties WHERE rekening=?', [$afkorting]);
+                echo 'Huidig saldo: ' . Util::naarEuro($saldo);
+
+                $beginsaldo = '';
+                $eindsaldo = '';
+                if ($toonjaar > 0)
                 {
-                    if ($toonjaar > 0)
-                    {
-                        $eindjaarsaldo = eenregel("SELECT SUM(bij)-SUM(af) FROM mutaties WHERE rekening=\"$afkorting\" AND DATE_FORMAT(datum, '%Y')<=$toonjaar ");
-                    }
-                    else
-                    {
-                        $eindjaarsaldo = "";
-                    }
+                    $beginsaldo = DBConnection::doQueryAndFetchOne('SELECT SUM(bij)-SUM(af) FROM mutaties WHERE rekening=? AND DATE_FORMAT(datum, \'%Y\')<=?', [$afkorting, $toonjaar - 1]);
+                    $eindsaldo = DBConnection::doQueryAndFetchOne('SELECT SUM(bij)-SUM(af) FROM mutaties WHERE rekening=? AND DATE_FORMAT(datum, \'%Y\')<=?', [$afkorting, $toonjaar]);
                 }
-                else
+
+                if ($beginsaldo != '')
                 {
-                    $eindjaarsaldo = "";
+                    echo '<br />Beginsaldo ' . $toonjaar . ': ' . Util::naarEuro($beginsaldo);
                 }
-                $saldo = number_format($saldo, 2, ',', '.');
-                echo $saldo;
-                if ($eindjaarsaldo && $eindjaarsaldo != "")
+
+                if ($eindsaldo != '')
                 {
-                    echo '<br />Eindsaldo ' . $toonjaar . ': &euro; ' . number_format($eindjaarsaldo, 2, ',', '.');
+                    echo '<br />Eindsaldo ' . $toonjaar . ': ' .Util::naarEuro($eindsaldo);
                 }
                 ?>
             </td>
@@ -144,36 +141,27 @@ echo '
         <tbody>
 
         <?php
-        if ($toonjaar = (int)$toonjaar)
+        $jaarstring = '';
+        if ($toonjaar > 0)
         {
-            if ($toonjaar > 0)
-            {
-                $jaarstring = "AND DATE_FORMAT(datum, '%Y')=$toonjaar ";
-            }
-            else
-            {
-                $jaarstring = "";
-            }
+            $jaarstring = "AND DATE_FORMAT(datum, '%Y')=$toonjaar ";
         }
-        else
+
+        $query = "SELECT m.id, code, \"Fout: onbekende code\", datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m WHERE code NOT IN ( SELECT code FROM codes ) AND rekening=? UNION SELECT m.id, m.code, omschrijving, datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m, codes c WHERE m.code=c.code AND rekening=? $jaarstring ORDER BY datum DESC, id DESC;";
+        $mutaties = DBConnection::doQueryAndReturnFetchable($query, [$afkorting, $afkorting]);
+        while (list($id, $code, $omschrijving, $datumObs, $datum, $commentaar, $bij, $af, $btw) = $mutaties->fetch())
         {
-            $jaarstring = "";
-        }
-        $mutatiess = "SELECT m.id, code, \"Fout: onbekende code\", datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m WHERE code NOT IN ( SELECT code FROM codes ) AND rekening=\"$afkorting\" UNION SELECT m.id, m.code, omschrijving, datum, DATE_FORMAT(datum, '%d-%m-%Y') AS datumnl, commentaar, bij, af, btw FROM mutaties m, codes c WHERE m.code=c.code AND rekening=\"$afkorting\" $jaarstring ORDER BY datum DESC, id DESC;";
-        $mutaties = mysql_query($mutatiess);
-        while (list($id, $code, $omschrijving, $datumobs, $datum, $commentaar, $bij, $af, $btw) = mysql_fetch_row($mutaties))
-        {
-            echo "<tr><td class=\"right\">$id</td><td>$code</td><td>$omschrijving</td><td>$datum</td><td>$commentaar</td><td class=\"right\">";
+            echo "<tr><td class=\"text-right\">$id</td><td>$code</td><td>$omschrijving</td><td>$datum</td><td>$commentaar</td><td class=\"text-right\">";
             if ($bij != 0.0)
             {
-                echo naarEuro($bij);
+                echo Util::naarEuro($bij);
             }
-            echo '</td><td class="right">';
+            echo '</td><td class="text-right">';
             if ($af != 0.0)
             {
-                echo naarEuro($af);
+                echo Util::naarEuro($af);
             }
-            echo '</td><td class="right">';
+            echo '</td><td class="text-right">';
             if ($btw)
             {
                 echo "$btw%";

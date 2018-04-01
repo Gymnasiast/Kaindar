@@ -2,126 +2,90 @@
 namespace Cyndaron;
 
 use PDO;
-use PDOException;
+use PDOStatement;
 
 ini_set('memory_limit', '96M');
 
 /**
  * Zorgt voor verbinding met de database.
+ * @author Michael Steenbeek
  */
 class DBConnection
 {
-    /** @var DBConnection $instance */
-    private static $instance;
     /** @var PDO $pdo */
     private static $pdo;
 
-    private function __construct()
-    {
-        static::connect();
-    }
+    private function __construct() {}
 
-    public static function getInstance(): DBConnection
+    public static function connect(string $host, string $database, string $user, string $pass): bool
     {
-        if (static::$instance === null)
+        try
         {
-            static::$instance = new static();
+            static::$pdo = @new PDO('mysql:host=' . $host . ';dbname=' . $database . ';charset=utf8', $user, $pass);
+            static::$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            return true;
         }
-
-        return static::$instance;
+        catch (\Throwable $e)
+        {
+            error_log($e->getMessage());
+            return false;
+        }
     }
 
-    public function doQuery(string $query, array $vars = [])
+    public static function doQuery($query, $vars = [])
     {
         $prep = static::$pdo->prepare($query);
         $result = $prep->execute($vars);
+
+        if ($result == false)
+        {
+            error_log(implode(',', $prep->errorInfo()));
+        }
+
         return $result == false ? $result : static::$pdo->lastInsertId();
     }
 
-    public function doQueryAndFetchAll(string $query, array $vars = [])
+    public static function doQueryAndReturnFetchable(string $query, array $vars = []): PDOStatement
+    {
+        $prep = static::$pdo->prepare($query);
+
+        if ($prep === false)
+        {
+            throw new \Exception('Query mislukt!');
+        }
+
+        $prep->execute($vars);
+        return $prep;
+    }
+
+    public static function doQueryAndFetchAll(string $query, array $vars = [])
     {
         $prep = static::$pdo->prepare($query);
         $prep->execute($vars);
         return $prep->fetchAll();
     }
 
-    public function doQueryAndFetchFirstRow(string $query, array $vars = [])
+    public static function doQueryAndFetchFirstRow(string $query, array $vars = [])
     {
         $prep = static::$pdo->prepare($query);
         $prep->execute($vars);
         return $prep->fetch();
     }
 
-    public function doQueryAndFetchOne(string $query, array $vars = [])
+    public static function doQueryAndFetchOne(string $query, array $vars = [])
     {
         $prep = static::$pdo->prepare($query);
         $prep->execute($vars);
         return $prep->fetchColumn();
     }
 
-    public function errorInfo()
+    public static function getPdo()
     {
-        return static::$pdo->errorCode();
-    }
-
-    private static function connect()
-    {
-        if (static::$pdo !== null)
-        {
-            return;
-        }
-
-        $dbmethode = 'mysql';
-        $dbuser = 'root';
-        $dbpass = '';
-        $dbplek = 'localhost';
-        $dbnaam = 'cyndaron';
-        require __DIR__ . '/../../config.php';
-
-        try
-        {
-            static::$pdo = @new PDO($dbmethode . ':host=' . $dbplek . ';dbname=' . $dbName . ';charset=utf8', $dbuser, $dbPass);
-        }
-        catch(PDOException $e)
-        {
-            error_log($e);
-            echo 'Kan niet verbinden met database!<br>';
-            echo 'Foutmelding: ' . $e->getMessage();
-            die();
-        }
-    }
-
-    public static function getPdo(): PDO
-    {
-        static::connect();
         return static::$pdo;
     }
 
-    /**
-     * @deprecated
-     * @param $query
-     * @param array $vars
-     * @return string
-     */
-    public static function geefEen($query, $vars = [])
+    public static function errorInfo()
     {
-        static::connect();
-        $resultaat = static::$pdo->prepare($query);
-        $resultaat->execute($vars);
-        return $resultaat->fetchColumn();
-    }
-
-    /**
-     * @deprecated
-     * @param $query
-     * @param $vars
-     * @return string
-     */
-    public static function maakEen($query, $vars)
-    {
-        static::connect();
-        $resultaat = static::$pdo->prepare($query);
-        $resultaat->execute($vars);
-        return static::$pdo->lastInsertId();
+        return static::$pdo->errorCode();
     }
 }

@@ -1,20 +1,22 @@
 <?php
 namespace Kaindar;
 
-require_once('functies.php');
-$huidigJaar = $_POST['jaar'] ?? eenregel('SELECT waarde FROM instellingen WHERE instelling="jaar" ;');
+use Cyndaron\DBConnection;
+use Cyndaron\Instelling;
 
-$btwbij = mysql_query("SELECT DISTINCT btw, SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE bij<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar GROUP BY btw ;");
-$btwaf = mysql_query("SELECT DISTINCT btw, SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE af<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar GROUP BY btw ;");
-$btwbijttlz0 = mysql_query("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
-$btwafttlz0 = mysql_query("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
-$btwbijttlm0 = mysql_query("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
-$btwafttlm0 = mysql_query("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
+$huidigJaar = $_POST['jaar'] ?? Instelling::geefInstelling('jaar');
+
+$btwbij = DBConnection::doQueryAndReturnFetchable("SELECT DISTINCT btw, SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE bij<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar GROUP BY btw ;");
+$btwaf = DBConnection::doQueryAndReturnFetchable("SELECT DISTINCT btw, SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE af<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar GROUP BY btw ;");
+$btwbijttlz0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
+$btwafttlz0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
+$btwbijttlm0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
+$btwafttlm0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
 
 $pagina = new Pagina('BTW-overzicht');
 $pagina->toonPrepagina();
 
-$jaren = geefAlleJaren();
+$jaren = Util::geefAlleJaren();
 ?>
 
 <form method="post" action="/btw">
@@ -47,29 +49,29 @@ $jaren = geefAlleJaren();
     </thead>
 
     <?php
-    while (list($tarief, $incl, $excl, $btw) = mysql_fetch_row($btwbij))
+    while (list($tarief, $incl, $excl, $btw) = $btwbij->fetch())
     {
         printf('<tr><td>%s%%</td><td class="text-right">%s</td><td class="text-right">%s</td><td class="text-right">%s</td></tr>',
             $tarief,
-            naarEuro($incl),
-            naarEuro($excl),
-            naarEuro($btw)
+            Util::naarEuro($incl),
+            Util::naarEuro($excl),
+            Util::naarEuro($btw)
         );
     }
-    while (list($incl, $excl, $btw) = mysql_fetch_row($btwbijttlm0))
+    while (list($incl, $excl, $btw) = $btwbijttlm0->fetch())
     {
         printf('<tr><td>Totaal met 0%%</td class="text-right"><td class="text-right">%s</td><td class="text-right">%s</td><td class="text-right">%s</td></tr>',
-            naarEuro($incl),
-            naarEuro($excl),
-            naarEuro($btw)
+            Util::naarEuro($incl),
+            Util::naarEuro($excl),
+            Util::naarEuro($btw)
         );
     }
-    while (list($incl, $excl, $btw) = mysql_fetch_row($btwbijttlz0))
+    while (list($incl, $excl, $btw) = $btwbijttlz0->fetch())
     {
         printf('<tr><td>Totaal zonder 0%%</td><td class="text-right">%s</td><td class="text-right">%s</td><td class="text-right">%s</td></tr>',
-            naarEuro($incl),
-            naarEuro($excl),
-            naarEuro($btw)
+            Util::naarEuro($incl),
+            Util::naarEuro($excl),
+            Util::naarEuro($btw)
         );
     }
     ?>
@@ -88,29 +90,29 @@ $jaren = geefAlleJaren();
 
 
     <?php
-    while (list($tarief, $incl, $excl, $btw) = mysql_fetch_row($btwaf))
+    while (list($tarief, $incl, $excl, $btw) = $btwaf->fetch())
     {
         printf('<tr><td>%s%%</td><td class="text-right">%s</td><td class="text-right">%s</td><td class="text-right">%s</td></tr>',
             $tarief,
-            naarEuro($incl),
-            naarEuro($excl),
-            naarEuro($btw)
+            Util::naarEuro($incl),
+            Util::naarEuro($excl),
+            Util::naarEuro($btw)
         );
     }
-    while (list($incl, $excl, $btw) = mysql_fetch_row($btwafttlm0))
+    while (list($incl, $excl, $btw) = $btwafttlm0->fetch())
     {
         printf('<tr><td>Totaal met 0%%</td class="text-right"><td class="text-right">%s</td><td class="text-right">%s</td><td class="text-right">%s</td></tr>',
-            naarEuro($incl),
-            naarEuro($excl),
-            naarEuro($btw)
+            Util::naarEuro($incl),
+            Util::naarEuro($excl),
+            Util::naarEuro($btw)
         );
     }
-    while (list($incl, $excl, $btw) = mysql_fetch_row($btwafttlz0))
+    while (list($incl, $excl, $btw) = $btwafttlz0->fetch())
     {
         printf('<tr><td>Totaal zonder 0%%</td><td class="text-right">%s</td><td class="text-right">%s</td><td class="text-right">%s</td></tr>',
-            naarEuro($incl),
-            naarEuro($excl),
-            naarEuro($btw)
+            Util::naarEuro($incl),
+            Util::naarEuro($excl),
+            Util::naarEuro($btw)
         );
     }
     ?>
