@@ -29,14 +29,14 @@ if (!empty($_POST))
 		if (!$af) $af = 0;
 		if (!$btw) $btw = 0;
 		DBConnection::doQueryAndReturnFetchable("UPDATE mutaties SET code=\"$code\", rekening=\"$rekening\", commentaar=\"$commentaar\", datum=\"$datum\", bij=$bij, af=$af, btw=$btw WHERE id=$id ;");
-		echo 'Mutatie bewerkt. <br /><a class=btn btn-primary" href="rekeningbijwerken?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm.';
+		echo 'Mutatie bewerkt. <br /><a class="btn btn-primary" href="rekeningbijwerken?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm</a>';
 	}
 	elseif ($actie=='verwijderen')
 	{
 		$rekening = DBConnection::doQueryAndFetchOne('SELECT rekening FROM mutaties WHERE id=?', [$id]);
 		$jaar=DBConnection::doQueryAndFetchOne('SELECT DATE_FORMAT(datum, \'%Y\') FROM mutaties WHERE id=?', [$id]);
 		DBConnection::doQuery('DELETE FROM mutaties WHERE id=?', [$id]);
-		echo 'Mutatie verwijderd. <br /><a class="btn btn-primary" href="rekeningbijwerken?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm.';
+		echo 'Mutatie verwijderd. <br /><a class="btn btn-primary" href="rekeningbijwerken?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm</a>';
 	}
 }
 else
@@ -77,7 +77,7 @@ else
 		<form method="post" action="bewerkmutatie?actie=verwijderen&amp;id=<?php echo $id; ?>">
 			<p>
 			<input name="verwijderen" type="hidden" value="verwijderen">
-			<input type="submit" value="Verwijderen bevestigen">
+			<input type="submit" class="btn btn-danger" value="Verwijderen bevestigen">
 			</p>
 		</form>
 		<?php
