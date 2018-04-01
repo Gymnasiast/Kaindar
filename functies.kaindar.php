@@ -26,7 +26,7 @@ function geefMaandnaam(int $maandnummer)
 	return MAANDEN[$maandnummer];
 }
 
-function naarEuro($bedrag)
+function naarEuro(float $bedrag)
 {
 	return '&euro;&nbsp;' . number_format($bedrag, 2, ',', '.');
 }

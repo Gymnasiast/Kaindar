@@ -141,12 +141,12 @@ class Pagina
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#">Home</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#">Link</a>-->
+<!--                    </li>-->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Speciale overzichten
@@ -161,9 +161,10 @@ class Pagina
                     </li>
                 </ul>
 
-                <a href="/instellingen">
-                    <span class="fa fa-cog"></span> Instellingen
-                </a>
+                <div>
+                    <a href="/instellingen"><span class="fa fa-cog"></span> Instellingen</a> &nbsp;
+                    <a href="/codes"><span class="fa fa-barcode"></span> Codes</a>
+                </div>
 
             </div>
         </nav>

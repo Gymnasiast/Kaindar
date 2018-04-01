@@ -1,4 +1,6 @@
 <?php
+namespace Kaindar;
+
 require_once('functies.php');
 $afkorting = $_GET['afkorting'] ?? '';
 if (!$afkorting)
@@ -14,16 +16,11 @@ $overzichten=mysql_query("SELECT SUM(bij)-SUM(af) AS cashflow,DATE_FORMAT(datum,
 
 $laatstejaar=0;
 $saldo=geefHuidigSaldo($afkorting);
+
+$pagina = new Pagina('Overzicht maandsaldi');
+$pagina->toonPrepagina();
 ?>
-<html>
-<head>
-<link href="stijl.css" rel="stylesheet" type="text/css" />
-</head>
-<body>
-<p>
-<a href="/">Terug naar het hoofdmenu</a>
-</p>
-<table>
+<table class="table table-bordered table-striped">
 <?php
 while ($overzicht=mysql_fetch_assoc($overzichten))
 {
@@ -38,5 +35,5 @@ while ($overzicht=mysql_fetch_assoc($overzichten))
 }
 ?>
 </table>
-</body>
-</html>
+<?php
+$pagina->toonPostPagina();

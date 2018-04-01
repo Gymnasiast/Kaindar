@@ -21,3 +21,14 @@
     list-style-type: none;
     padding-left: 0;
 }
+
+.form-control-inline
+{
+    display: inline-block;
+    width: auto;
+}
+
+label
+{
+    font-weight: bold;
+}
