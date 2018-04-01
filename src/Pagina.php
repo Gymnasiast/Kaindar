@@ -75,6 +75,7 @@ class Pagina
             <?php
             printf('<link href="/vendor/normalize.css/normalize.css?r=%s" type="text/css" rel="stylesheet" />', CyndaronInfo::ENGINE_VERSIE);
             printf('<link href="/vendor/Bootstrap/css/bootstrap.min.css?r=%s" type="text/css" rel="stylesheet" />', CyndaronInfo::ENGINE_VERSIE);
+            printf('<link href="/vendor/FontAwesome/css/font-awesome.css?r=%s" type="text/css" rel="stylesheet" />', CyndaronInfo::ENGINE_VERSIE);
             printf('<link href="/css/kaindar.css?r=%s" type="text/css" rel="stylesheet" />', CyndaronInfo::ENGINE_VERSIE);
             if ($favicon = Instelling::geefInstelling('favicon'))
             {
@@ -116,8 +117,7 @@ class Pagina
             $class = 'voorpagina';
         }
 
-        echo '<div class="paginatitel ' . $class . '"><h1 style="display: inline; margin-right:8px;">' . $this->paginanaam . '</h1>';
-        static::toonIndienAanwezigEnAdmin($this->titelknoppen, '<div class="btn-group" style="vertical-align: bottom; margin-bottom: 3px;">', '</div>');
+        echo '<div class="paginatitel ' . $class . '"><h1>' . $this->paginanaam . '</h1>';
         echo "</div>\n";
     }
 
@@ -132,92 +132,42 @@ class Pagina
 
     protected function toonMenu()
     {
-        $websitelogo = '';//Instelling::geefInstelling('websitelogo');
-        $inverseClass = '';//(Instelling::geefInstelling('menuthema') == 'donker') ? 'navbar-inverse' : '';
-        $navbar = $websitelogo ? sprintf('<img alt="" src="%s"> ', $websitelogo) : $this->websitenaam;
         ?>
-        <nav class="menu navbar <?= $inverseClass; ?>">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                            data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Navigatie omschakelen</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="./"><?= $navbar; ?></a>
-                </div>
+        <nav class="navbar menu navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">Administratie</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="nav navbar-nav">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Speciale overzichten
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/btw">BTW</a>
+                            <a class="dropdown-item" href="/contributieoverzicht">Contributie</a>
+                            <a class="dropdown-item" href="/grootboek">Grootboek</a>
+                            <a class="dropdown-item" href="/resultatenrekening">Resultatenrekening</a>
+                            <a class="dropdown-item" href="/inkomstenuitgaven">Staat van inkomsten en uitgaven</a>
+                        </div>
+                    </li>
+                </ul>
 
-                        <?php
-                        $menuarray = $this->geefMenu();
-                        // Laat eerste menuonderdeel weg, daar is het logo voor.
-                        //array_shift($menuarray);
+                <a href="/instellingen">
+                    <span class="fa fa-cog"></span> Instellingen
+                </a>
 
-                        if (count($menuarray) > 0)
-                        {
-                            foreach ($menuarray as $menuitem)
-                            {
-                                if (strpos($menuitem['link'], 'tooncategorie') !== false && strpos($menuitem['link'], '#dd') !== false)
-                                {
-                                    $id = intval(str_replace(['tooncategorie.php?id=', '#dd'], '', $menuitem['link']));
-                                    global $pdo;
-
-                                    $paginasInCategorie = $pdo->prepare("
-										SELECT * FROM
-										(
-											SELECT 'sub' AS type, id, naam FROM subs WHERE categorieid=?
-											UNION
-											SELECT 'fotoboek' AS type, id, naam FROM fotoboeken WHERE categorieid=?
-										) AS een
-										ORDER BY naam ASC;");
-                                    $paginasInCategorie->execute([$id, $id]);
-
-                                    echo '<li class="dropdown">';
-
-                                    echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . $menuitem['naam'] . ' <span class="caret"></span></a>';
-                                    echo '<ul class="dropdown-menu">';
-
-                                    foreach ($paginasInCategorie->fetchAll() as $pagina)
-                                    {
-                                        $url = new Url(sprintf('toon%s.php?id=%d', $pagina['type'], $pagina['id']));
-                                        $link = $url->geefFriendly();
-                                        printf('<li><a href="%s">%s</a></li>', $link, $pagina['naam']);
-                                    }
-
-                                    echo '</ul></li>';
-                                }
-                                else
-                                {
-                                    if ($this->menuItemIsHuidigePagina($menuitem['link']))
-                                    {
-                                        echo '<li class="active">';
-                                    }
-                                    else
-                                    {
-                                        echo '<li>';
-                                    }
-
-                                    echo '<a href="' . $menuitem['link'] . '">' . $menuitem['naam'] . '</a></li>';
-                                }
-                            }
-                        }
-                        ?>
-
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a title="Instellingen aanpassen" href="configuratie.php">
-                            <span class="glyphicon glyphicon-cog"></span>
-                        </a></li>
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
+            </div>
         </nav>
+
         <?php
         $meldingen = Gebruiker::geefMeldingen();
         if ($meldingen)
@@ -251,9 +201,10 @@ class Pagina
         ?>
         </div></div></div>
 
-        <script type="text/javascript" src="sys/js/jquery-3.2.1.min.js"></script>
-        <script type="text/javascript" src="sys/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="sys/js/cyndaron.js"></script>
+        <script type="text/javascript" src="/vendor/jQuery/jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="/vendor/Popper.js/popper.min.js"></script>
+        <script type="text/javascript" src="/vendor/Bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/js/kaindar.js"></script>
     <?php
     foreach ($this->extraScripts as $extraScript)
     {
@@ -311,26 +262,6 @@ class Pagina
     public static function toonIndienAanwezig($string, $voor = null, $na = null)
     {
         if ($string)
-        {
-            echo $voor;
-            echo $string;
-            echo $na;
-        }
-    }
-
-    public static function toonIndienAanwezigEnAdmin($string, $voor = null, $na = null)
-    {
-        if (Gebruiker::isAdmin() && $string)
-        {
-            echo $voor;
-            echo $string;
-            echo $na;
-        }
-    }
-
-    public static function toonIndienAanwezigEnGeenAdmin($string, $voor = null, $na = null)
-    {
-        if (!Gebruiker::isAdmin() && $string)
         {
             echo $voor;
             echo $string;

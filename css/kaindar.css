@@ -1,9 +1,14 @@
-.inhoud
+.inhoud, .menu
 {
     max-width: 1140px;
     width: 90%;
     margin-left: auto;
     margin-right: auto;
+}
+
+.menu li, .menu a, .navbar-light .navbar-nav .nav-link
+{
+    color: black;
 }
 
 .twocolumn

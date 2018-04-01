@@ -40,3 +40,18 @@ function geefHuidigSaldo(string $rekening = '')
 	}
 	return eenregel('SELECT SUM(bij)-SUM(af) FROM mutaties' . $rekeningstring.';');
 }
+
+function geefAlleJaren(string $where = ''): array
+{
+    global $pdo;
+    $prep = $pdo->prepare('SELECT DISTINCT DATE_FORMAT(datum, \'%Y\') AS jaar FROM mutaties ' . $where . ' ORDER BY jaar DESC');
+    $prep->execute([]);
+
+    $jaren = [];
+    while ($jaar = $prep->fetchColumn())
+    {
+        $jaren[] = $jaar;
+    }
+
+    return $jaren;
+}

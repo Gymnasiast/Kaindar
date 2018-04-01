@@ -1,11 +1,12 @@
 <?php
+namespace Kaindar;
 require_once('functies.php');
+
+
+$pagina = new Pagina('Hoofdmenu');
+$pagina->toonPrepagina();
+
 ?>
-<html>
-<head>
-    <link href="stijl.css" rel="stylesheet" type="text/css" />
-</head>
-<body class="menu">
 Rekeningen:<br>
 <ul>
     <?php
@@ -57,5 +58,6 @@ Speciale overzichten:<br>
 <a href="instellingen">Instellingen en standaardwaarden</a><br />
 <a href="codes">Codes</a><br />
 <a href="btw">BTW-overzicht</a><br />
-</body>
-</html>
+
+<?php
+$pagina->toonPostPagina();

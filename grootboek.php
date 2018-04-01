@@ -15,10 +15,12 @@ if (!$_POST)
     <form method="post" action="/grootboek">
         Jaar: <select name="jaar">
             <?php
-            $jaren = mysql_query('SELECT DISTINCT DATE_FORMAT(datum, \'%Y\') AS jaar FROM mutaties');
+            $jaren = geefAlleJaren();
+            var_dump($jaren);
+
             $grootboekjaar = eenregel("SELECT waarde FROM instellingen WHERE instelling=\"grootboekjaar\" ;");
 
-            while (list($jaar) = mysql_fetch_row($jaren))
+            foreach ($jaren as $jaar)
             {
                 echo '<option';
                 if ($grootboekjaar == $jaar)
