@@ -26,7 +26,7 @@ $pagina->toonPrepagina();
             <td><label for="omschrijving">Omschrijving:</label></td>
             <td><input type="text" maxlength="100" id="omschrijving" name="omschrijving" class="form-control"/></td>
         </tr>
-        <tr><td><input type="submit" class="btn btn-primary" value="Invoeren"/></td></tr>
+        <tr><td><input type="submit" class="btn btn-primary" value="Toevoegen"/></td></tr>
     </table>
     <table class="table table-bordered table-striped">
 </form>
