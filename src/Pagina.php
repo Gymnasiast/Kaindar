@@ -132,6 +132,9 @@ class Pagina
 
     protected function toonMenu()
     {
+        $alleRekeningen = geefAlleRekeningen();
+        $alleRekeningen[] = ['afkorting' => '', 'omschrijving' => 'Alle rekeningen'];
+
         ?>
         <nav class="navbar menu navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="/">Administratie</a>
@@ -147,6 +150,32 @@ class Pagina
 <!--                    <li class="nav-item">-->
 <!--                        <a class="nav-link" href="#">Link</a>-->
 <!--                    </li>-->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Maandsaldi
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <?php
+                            foreach ($alleRekeningen as $rekening)
+                            {
+                                printf('<a class="dropdown-item" href="/saldioverzicht?afkorting=%s">%s</a>', $rekening['afkorting'], $rekening['omschrijving']);
+                            }
+                            ?>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Opget. posten
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <?php
+                            foreach ($alleRekeningen as $rekening)
+                            {
+                                printf('<a class="dropdown-item" href="/postoverzicht?afkorting=%s">%s</a>', $rekening['afkorting'], $rekening['omschrijving']);
+                            }
+                            ?>
+                        </div>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Speciale overzichten

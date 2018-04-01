@@ -55,3 +55,12 @@ function geefAlleJaren(string $where = ''): array
 
     return $jaren;
 }
+
+function geefAlleRekeningen(): array
+{
+    global $pdo;
+    $prep = $pdo->prepare('SELECT * FROM rekeningen;');
+    $prep->execute([]);
+
+    return $prep->fetchAll();
+}

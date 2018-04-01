@@ -32,3 +32,8 @@ label
 {
     font-weight: bold;
 }
+
+.table-notstretched
+{
+    width: auto;
+}

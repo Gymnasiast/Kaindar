@@ -29,24 +29,22 @@ $pagina->toonPrepagina();
     Maandsaldi en cashflow:<br>
     <ul>
         <?php
-        $rekeningen = mysql_query("SELECT afkorting, omschrijving FROM rekeningen;");
-        while (list($afkorting, $omschrijving) = mysql_fetch_row($rekeningen))
+        foreach (geefAlleRekeningen() as $rekening)
         {
-            echo '<li><a href="saldioverzicht?afkorting=' . $afkorting . '">' . $omschrijving . '</a></li>';
+            echo '<li><a href="saldioverzicht?afkorting=' . $rekening['afkorting'] . '">' . $rekening['omschrijving'] . '</a></li>';
         }
         ?>
         <li><a href="saldioverzicht">Alle rekeningen</a></li>
     </ul>
-    Postenoverzichten:<br>
+    Opgetelde posten:<br>
     <ul>
-        <li><a href="postoverzichtar">Alle rekeningen</a></li>
         <?php
-        $rekeningen = mysql_query("SELECT afkorting, omschrijving FROM rekeningen;");
-        while (list($afkorting, $omschrijving) = mysql_fetch_row($rekeningen))
+        foreach (geefAlleRekeningen() as $rekening)
         {
-            echo '<li><a href="postoverzicht?afkorting=' . $afkorting . '">' . $omschrijving . '</a></li>';
+            echo '<li><a href="postoverzicht?afkorting=' . $rekening['afkorting'] . '">' . $rekening['omschrijving'] . '</a></li>';
         }
         ?>
+        <li><a href="postoverzicht">Alle rekeningen</a></li>
     </ul>
     Speciale overzichten:<br>
     <ul>

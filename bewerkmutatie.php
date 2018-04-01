@@ -1,18 +1,14 @@
 <?php
+namespace Kaindar;
+
 require_once('functies.php');
+
 $id=$_GET['id'];
 $actie=$_GET['actie'];
-?>
-<html>
-<head>
-<title>Mutatie bewerken/verwijderen</title>
-<link href="stijl.css" rel="stylesheet" type="text/css">
-</head>
-<body>
-<p>
-<a href="/">Terug naar het hoofdmenu</a>
-</p>
-<?php
+
+$pagina = new Pagina('Mutatie bijwerken');
+$pagina->toonPrepagina();
+
 if (!empty($_POST))
 {
 	if ($actie=="bewerken")
@@ -33,14 +29,14 @@ if (!empty($_POST))
 		if (!$af) $af = 0;
 		if (!$btw) $btw = 0;
 		mysql_query("UPDATE mutaties SET code=\"$code\", rekening=\"$rekening\", commentaar=\"$commentaar\", datum=\"$datum\", bij=$bij, af=$af, btw=$btw WHERE id=$id ;");
-		echo 'Mutatie bewerkt. <a href="rekeningbijwerken.php?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm.';
+		echo 'Mutatie bewerkt. <a href="rekeningbijwerken?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm.';
 	}
 	elseif ($actie=='verwijderen')
 	{
 		$rekening=eenregel("SELECT rekening FROM mutaties WHERE id=$id ;");
 		$jaar=eenregel("SELECT DATE_FORMAT(datum, '%Y') FROM mutaties WHERE id=$id ;");
 		mysql_query("DELETE FROM mutaties WHERE id=$id ;");
-		echo 'Mutatie verwijderd. <a href="rekeningbijwerken.php?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm.';		
+		echo 'Mutatie verwijderd. <a href="rekeningbijwerken?afkorting=' . $rekening . '&toonjaar='.$jaar.'">Terug naar het invoerscherm.';
 	}
 }
 else
@@ -51,7 +47,7 @@ else
 		while (list($code, $rekening, $dag, $maand, $jaar, $commentaar, $bij, $af, $btw) = mysql_fetch_row($mutatie))
 		{
 			echo '
-			<form method="post" action="bewerkmutatie.php?actie=bewerken&id='.$id.'">
+			<form method="post" action="bewerkmutatie?actie=bewerken&id='.$id.'">
 			<table class="geenlijnen">
 			<tr><td class="geenlijnen">Code:</td><td class="geenlijnen"><input type="text" size="10" name="code" value="'.$code.'" /></td></tr>
 			<tr><td class="geenlijnen">Rekeningcode:</td><td class="geenlijnen">
@@ -78,7 +74,7 @@ else
 	elseif ($actie=='verwijderen')
 	{	
 		?>
-		<form method="post" action="bewerkmutatie.php?actie=verwijderen&amp;id=<?php echo $id; ?>">
+		<form method="post" action="bewerkmutatie?actie=verwijderen&amp;id=<?php echo $id; ?>">
 			<p>
 			<input name="verwijderen" type="hidden" value="verwijderen">
 			<input type="submit" value="Verwijderen bevestigen">
@@ -87,7 +83,5 @@ else
 		<?php
 	}
 }
-?>
-</body>
-</html>
 
+$pagina->toonPostPagina();
