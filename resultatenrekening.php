@@ -7,7 +7,7 @@ echo '
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 ';
 $jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling='grootboekjaar' ;");

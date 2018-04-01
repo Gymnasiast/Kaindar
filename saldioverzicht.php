@@ -21,7 +21,7 @@ $saldo=geefHuidigSaldo($afkorting);
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 <table>
 <?php

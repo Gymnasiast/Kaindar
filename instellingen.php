@@ -18,7 +18,7 @@ $grootboekjaar=eenregel("SELECT waarde FROM instellingen WHERE instelling=\"groo
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 <form method="post" action="instellingen.php">
 Standaardjaar (bij invoeren/opvragen): <select name="jaar">

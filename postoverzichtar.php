@@ -15,7 +15,7 @@ $posten=mysql_query('SELECT DISTINCT m.code, omschrijving, SUM(bij), SUM(af), SU
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 Opgetelde posten van alle rekeningen van het jaar <?php echo $jaar; ?>.
 <form method="post" action="postoverzichtar.php">

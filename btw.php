@@ -18,7 +18,7 @@ $btwafttlm0=mysql_query("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SU
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 
 <form method="post" action="btw.php">

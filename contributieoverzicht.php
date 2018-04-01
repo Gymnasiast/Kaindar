@@ -10,7 +10,7 @@ border: 1px #000000;
 <link href="stijl.css" rel="stylesheet" type="text/css" />
 </head><body>
 	';
-	echo '<a href="index.php">Terug naar hoofdmenu</a><br />';
+	echo '<a href="/">Terug naar hoofdmenu</a><br />';
 if (!@$_GET['jaar'])
 {
 	?>

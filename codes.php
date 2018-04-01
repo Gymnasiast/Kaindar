@@ -13,7 +13,7 @@ if(!empty($_POST))
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 <form method="post" action="codes.php">
 <table class="geenlijnen">

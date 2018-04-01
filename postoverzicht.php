@@ -12,7 +12,7 @@ $posten=mysql_query('SELECT DISTINCT m.code, omschrijving, SUM(bij), SUM(af), SU
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 <?php
 $rekening=eenregel("SELECT omschrijving FROM rekeningen WHERE afkorting=\"$afkorting\" ;"); ?>

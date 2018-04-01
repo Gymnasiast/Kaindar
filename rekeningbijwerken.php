@@ -29,7 +29,7 @@ if (!empty($_POST))
 </head>
 <body>
 <p>
-<a href="index.php">Terug naar het hoofdmenu</a>
+<a href="/">Terug naar het hoofdmenu</a>
 </p>
 <?php
 $jaar=eenregel("SELECT waarde FROM instellingen WHERE instelling=\"jaar\";");
