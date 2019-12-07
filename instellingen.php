@@ -7,7 +7,7 @@ use Cyndaron\Instelling;
 if (!empty($_POST))
 {
     $jaar = $_POST['jaar'];
-    DBConnection::doQuery('UPDATE instellingen SET `waarde`=? WHERE `instelling`="jaar"', [$jaar]);
+    DBConnection::doQuery('UPDATE instellingen SET `waarde`=? WHERE `naam`="jaar"', [$jaar]);
 }
 
 $jaren = Util::geefAlleJaren();
