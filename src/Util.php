@@ -46,6 +46,10 @@ class Util
         return DBConnection::doQueryAndFetchOne('SELECT SUM(bij)-SUM(af) FROM mutaties' . $rekeningstring);
     }
 
+    /**
+     * @param string $where
+     * @return integer[]
+     */
     public static function geefAlleJaren(string $where = ''): array
     {
         $pdo = DBConnection::getPdo();
@@ -55,7 +59,7 @@ class Util
         $jaren = [];
         while ($jaar = $prep->fetchColumn())
         {
-            $jaren[] = $jaar;
+            $jaren[] = (int)$jaar;
         }
 
         return $jaren;

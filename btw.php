@@ -4,36 +4,58 @@ namespace Kaindar;
 use Cyndaron\DBConnection;
 use Cyndaron\Instelling;
 
-$huidigJaar = $_POST['jaar'] ?? Instelling::geefInstelling('jaar');
+const PERIODES = [
+    0 => 'Hele jaar',
+    1 => 'Jan - Mrt',
+    2 => 'Apr - Jun',
+    3 => 'Jul - Sep',
+    4 => 'Okt - Dec',
+];
 
-$btwbij = DBConnection::doQueryAndReturnFetchable("SELECT DISTINCT btw, SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE bij<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar GROUP BY btw ;");
-$btwaf = DBConnection::doQueryAndReturnFetchable("SELECT DISTINCT btw, SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE af<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar GROUP BY btw ;");
-$btwbijttlz0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
-$btwafttlz0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
-$btwbijttlm0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
-$btwafttlm0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND DATE_FORMAT(datum, '%Y')=$huidigJaar ;");
+$huidigJaar = (int)($_POST['jaar'] ?? Instelling::geefInstelling('jaar'));
+$huidigePeriode = (int)($_POST['periode'] ?? 0);
 
-$pagina = new Pagina('BTW-overzicht');
+$dateLimit = "DATE_FORMAT(datum, '%Y')=?";
+$vars = [$huidigJaar];
+$titel = 'BTW-overzicht ' . $huidigJaar;
+
+if ($huidigePeriode > 0)
+{
+    $startmaand = (($huidigePeriode - 1) * 3) + 1;
+    $eindmaand = $startmaand + 2;
+    $dateLimit .= " AND DATE_FORMAT(datum, '%c') >= ? AND DATE_FORMAT(datum, '%c') <= ?";
+    $vars[] = $startmaand;
+    $vars[] = $eindmaand;
+    $titel .= " ({$huidigePeriode}e kwartaal)";
+}
+
+$btwbij = DBConnection::doQueryAndReturnFetchable("SELECT DISTINCT btw, SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE bij<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND {$dateLimit} GROUP BY btw ;", $vars);
+$btwaf = DBConnection::doQueryAndReturnFetchable("SELECT DISTINCT btw, SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE af<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND {$dateLimit} GROUP BY btw ;", $vars);
+$btwbijttlz0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND {$dateLimit} ;", $vars);
+$btwafttlz0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE btw<>0 AND code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND {$dateLimit} ;", $vars);
+$btwbijttlm0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(bij), SUM(ROUND((bij*(100/(100+btw))), 2)), SUM(ROUND((bij*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND {$dateLimit} ;", $vars);
+$btwafttlm0 = DBConnection::doQueryAndReturnFetchable("SELECT SUM(af), SUM(ROUND((af*(100/(100+btw))), 2)), SUM(ROUND((af*(btw/(100+btw))), 2)) FROM mutaties WHERE code IN (SELECT code FROM codes WHERE iskruispost=0 AND isdc=0 ) AND {$dateLimit} ;", $vars);
+
+$pagina = new Pagina($titel);
 $pagina->toonPrepagina();
 
 $jaren = Util::geefAlleJaren();
 ?>
 
 <form method="post" action="/btw">
-    <select name="jaar">
-        <?php
-        foreach ($jaren as $jaar)
-        {
-            echo "<option";
-            if ($jaar == $huidigJaar)
-            {
-                echo " selected";
-            }
-            echo " value=\"$jaar\">$jaar</option>";
-        }
-
-        ?>
+    Jaar: <select name="jaar">
+        <?php foreach ($jaren as $jaar): ?>
+            <?php $selected = ($jaar === $huidigJaar) ? ' selected' : ''; ?>
+            <option <?=$selected?> value="<?=$jaar?>"><?=$jaar?></option>
+        <?php endforeach; ?>
     </select>
+    Periode: <select name="periode">
+        <?php foreach (PERIODES as $index => $omschrijving): ?>
+            <?php $selected = ($index === $huidigePeriode) ? ' selected' : ''; ?>
+            <option value="<?=$index?>" <?=$selected?>><?=$omschrijving?></option>
+        <?php endforeach; ?>
+    </select>
+
     <input type="submit" value="Weergeven"/>
 </form>
 <h1>Ontvangen BTW</h1>
