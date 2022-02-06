@@ -65,16 +65,14 @@ else
                     echo "<tr><td class=\"text-right\">$id</td><td>$omschrijving</td><td>$datum</td><td>$commentaar</td><td class=\"right\">";
                     $bijtot += $bij;
                     $aftot += $af;
-                    $bij = Util::naarEuro($bij);
-                    $af = Util::naarEuro($af);
-                    if ($bij != "0,00")
+                    if ($bij != 0.0)
                     {
-                        echo "&euro; $bij";
+                        echo Util::naarEuro($bij);
                     }
                     echo '</td><td class="text-right">';
-                    if ($af != "0,00")
+                    if ($af != 0.0)
                     {
-                        echo "&euro; $af";
+                        echo Util::naarEuro($af);
                     }
                     echo '</td><td class="text-right">';
                     if ($btw)
