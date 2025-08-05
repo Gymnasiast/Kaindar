@@ -85,7 +85,7 @@ spl_autoload_register(function ($class)
     }
 }
 
-$pagina = $_GET['pagina'] ?? '';
+$pagina = ltrim((string)parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 
 if ($pagina == '' || $pagina == '/' || !file_exists($pagina . '.php'))
     include 'home.php';
