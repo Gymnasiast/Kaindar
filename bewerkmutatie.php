@@ -49,7 +49,7 @@ else
 			echo '
 			<form method="post" action="bewerkmutatie?actie=bewerken&id='.$id.'">
 			<table class="geenlijnen">
-			<tr><td class="geenlijnen">Code:</td><td class="geenlijnen"><input type="text" size="10" name="code" value="'.$code.'" /></td></tr>
+			<tr><td class="geenlijnen">Code:</td><td class="geenlijnen"><input type="text" size="15" name="code" value="'.$code.'" /></td></tr>
 			<tr><td class="geenlijnen">Rekeningcode:</td><td class="geenlijnen">
 			<select name="rekening">';
 			$rekeningen=DBConnection::doQueryAndReturnFetchable("SELECT afkorting, omschrijving FROM rekeningen ;");

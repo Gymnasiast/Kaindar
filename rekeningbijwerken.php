@@ -43,7 +43,7 @@ echo '
     <table>
         <tr>
             <td><label for="code">Code:</label></td>
-            <td><input type="text" maxlength="10" size="10" name="code" id="code" class="form-control"/></td>
+            <td><input type="text" maxlength="15" size="15" name="code" id="code" class="form-control"/></td>
         </tr>
         <tr>
             <td><label for="dag">Datum:</label></td>

@@ -51,7 +51,7 @@ $pagina->toonPrepagina();
         </tr>
         <tr>
             <td><label for="code">Afkorting:</label></td>
-            <td><input type="text" maxlength="10" size="10" id="code" name="code" class="form-control"/></td>
+            <td><input type="text" maxlength="15" size="15" id="code" name="code" class="form-control"/></td>
         </tr>
         <tr>
             <td><label for="omschrijving">Omschrijving:</label></td>
