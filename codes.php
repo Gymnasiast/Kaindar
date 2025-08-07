@@ -5,11 +5,17 @@ use Cyndaron\DBConnection;
 use function array_key_exists;
 
 const ORDER_BY = [
-    '' => 'omschrijving ASC',
-    'gebruik' => 'gebruik ASC',
+    '' => ['queryPart' => 'omschrijving ASC', 'description' => 'Omschrijving'],
+    'code' => ['queryPart' => 'code ASC', 'description' => 'Code'],
+    //'gebruik' => ['queryPart' => 'gebruik ASC'] ,
 ];
 
-$orderBy = '';
+$orderBy = $_GET['sort'] ?? '';
+if (!array_key_exists($orderBy, ORDER_BY))
+{
+    $orderBy = '';
+}
+
 if (!empty($_POST))
 {
     $action = $_POST['action'] ?? '';
@@ -24,12 +30,6 @@ if (!empty($_POST))
         $code = $_POST['code'];
         DBConnection::doQuery('DELETE FROM codes WHERE code = ?', [$code]);
     }
-
-    $orderByPost = $_POST['orderBy'] ?? '';
-    if (array_key_exists($orderByPost, ORDER_BY))
-    {
-        $orderBy = $orderByPost;
-    }
 }
 
 $sql = '
@@ -37,7 +37,7 @@ $sql = '
     FROM codes c
     LEFT JOIN mutaties m on c.code = m.code
     GROUP BY c.code, c.omschrijving
-    ORDER BY ' . ORDER_BY[$orderBy] .';';
+    ORDER BY ' . ORDER_BY[$orderBy]['queryPart'] .';';
 
 $codes = [
     'Recent gebruikt' => [],
@@ -79,8 +79,20 @@ $pagina->toonPrepagina();
     </table>
 </form>
 
+<h2>Bestaande codes</h2>
+
+<form method="get">
+    Sorteren op:
+    <?php foreach (ORDER_BY as $key => $desc): ?>
+        <input id="sort-<?=$key?>" type="radio" name="sort" value="<?=$key?>" <?php if ($orderBy === $key): ?>checked<?php endif;?>/>
+        <label for="sort-<?=$key?>"><?=$desc['description']?></label>
+    <?php endforeach; ?>
+    <input type="submit" value="Toepassen" class="btn btn-outline-primary"/>
+</form>
+
+
 <?php foreach ($codes as $kop => $records): ?>
-    <h2><?=$kop?></h2>
+    <h3><?=$kop?></h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>Code</th>
