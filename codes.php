@@ -33,13 +33,26 @@ if (!empty($_POST))
 }
 
 $sql = '
-    SELECT c.code, c.omschrijving, COUNT(m.code) as gebruik
+    SELECT c.code, c.omschrijving,MAX(m.datum) AS laatstgebruikt, COUNT(m.code) as gebruik
     FROM codes c
     LEFT JOIN mutaties m on c.code = m.code
     GROUP BY c.code, c.omschrijving
     ORDER BY ' . ORDER_BY[$orderBy] .';';
 
-$codes = DBConnection::doQueryAndReturnFetchable($sql);
+$codes = [
+    'Recent gebruikt' => [],
+    'Oudere codes' => [],
+];
+$drempel = strtotime('-2 years');
+
+$records = DBConnection::doQueryAndReturnFetchable($sql);
+while ($record = $records->fetch())
+{
+    if (strtotime($record['laatstgebruikt']) >= $drempel)
+        $codes['Recent gebruikt'][] = $record;
+    else
+        $codes['Oudere codes'][] = $record;
+}
 
 $pagina = new Pagina('Codes');
 $pagina->toonPrepagina();
@@ -66,30 +79,36 @@ $pagina->toonPrepagina();
     </table>
 </form>
 
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>Code</th>
-        <th>Omschrijving</th>
-        <th>Gebruikt</th>
-        <th></th>
-    </tr>
-    <?php while (list($code, $omschrijving, $gebruik) = $codes->fetch()): ?>
-    <tr>
-        <td><?=$code?></td>
-        <td><?=$omschrijving?></td>
-        <td><?=$gebruik?>×</td>
-        <td>
-            <?php if ($gebruik == 0): ?>
-                <form method="post">
-                    <input type="hidden" name="code" value="<?=$code?>"/>
-                    <input type="hidden" name="action" value="delete"/>
-                    <input type="submit" value="Verwijderen"/>
-                </form>
-            <?php endif; ?>
-        </td>
-    </tr>
-    <?php endwhile; ?>
-</table>
-<?php
+<?php foreach ($codes as $kop => $records): ?>
+    <h2><?=$kop?></h2>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Code</th>
+            <th>Omschrijving</th>
+            <th>Laatst gebruikt</th>
+            <th>Gebruikt</th>
+            <th></th>
+        </tr>
+        <?php foreach ($records as list($code, $omschrijving, $laatstGebruikt, $gebruik)): ?>
+            <tr>
+                <td><?=$code?></td>
+                <td><?=$omschrijving?></td>
+                <td><?=$laatstGebruikt?></td>
+                <td><?=$gebruik?>×</td>
+                <td>
+                    <?php if ($gebruik == 0): ?>
+                        <form method="post">
+                            <input type="hidden" name="code" value="<?=$code?>"/>
+                            <input type="hidden" name="action" value="delete"/>
+                            <input type="submit" value="Verwijderen"/>
+                        </form>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+
+<?php endforeach;
+
 $pagina->toonPostPagina();
 
