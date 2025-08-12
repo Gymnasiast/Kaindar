@@ -100,6 +100,7 @@ $pagina->toonPrepagina();
             <th>Laatst gebruikt</th>
             <th>Gebruikt</th>
             <th></th>
+            <th></th>
         </tr>
         <?php foreach ($records as list($code, $omschrijving, $laatstGebruikt, $gebruik)): ?>
             <tr>
@@ -107,12 +108,13 @@ $pagina->toonPrepagina();
                 <td><?=$omschrijving?></td>
                 <td><?=$laatstGebruikt?></td>
                 <td><?=$gebruik?>×</td>
+                <td><a href="bewerkcode?code=<?=$code?>" class="btn btn-outline-primary">Bewerken</a></td>
                 <td>
                     <?php if ($gebruik == 0): ?>
                         <form method="post">
                             <input type="hidden" name="code" value="<?=$code?>"/>
                             <input type="hidden" name="action" value="delete"/>
-                            <input type="submit" value="Verwijderen"/>
+                            <input type="submit" value="Verwijderen" class="btn btn-outline-primary"/>
                         </form>
                     <?php endif; ?>
                 </td>
