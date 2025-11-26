@@ -4,7 +4,34 @@ namespace Kaindar;
 use Cyndaron\DBConnection;
 use Cyndaron\Instelling;
 
-$posten = DBConnection::doQueryAndReturnFetchable('SELECT code,omschrijving FROM codes ORDER BY omschrijving');
+const ORDER_BY = [
+        '' => ['queryPart' => 'omschrijving ASC', 'description' => 'Omschrijving'],
+        'code' => ['queryPart' => 'code ASC', 'description' => 'Code'],
+    //'gebruik' => ['queryPart' => 'gebruik ASC'] ,
+];
+
+$orderBy = '';
+$sql = '
+    SELECT c.code, c.omschrijving,MAX(m.datum) AS laatstgebruikt, COUNT(m.code) as gebruik
+    FROM codes c
+    LEFT JOIN mutaties m on c.code = m.code
+    GROUP BY c.code, c.omschrijving
+    ORDER BY ' . ORDER_BY[$orderBy]['queryPart'] .';';
+
+$codes = [
+        'Recent gebruikt' => [],
+        'Oudere codes' => [],
+];
+$drempel = strtotime('-2 years');
+
+$records = DBConnection::doQueryAndReturnFetchable($sql);
+while ($record = $records->fetch())
+{
+    if (strtotime($record['laatstgebruikt']) >= $drempel)
+        $codes['Recent gebruikt'][] = $record;
+    else
+        $codes['Oudere codes'][] = $record;
+}
 
 $pagina = new Pagina('Grootboek');
 $pagina->toonPrepagina();
@@ -31,25 +58,30 @@ if (!$_POST)
             }
             ?>
         </select><br/>
-        <ul class="twocolumn nodots">
         <?php
-        while ($post = $posten->fetch())
+        foreach ($codes as $category => $subcodes)
         {
-            echo '<li><input type="checkbox" name="' . $post['code'] . '"/> ' . $post['omschrijving'] . '</li>';
+            echo '<ul class="twocolumn nodots">';
+            echo "<h2>{$category}</h2>";
+            foreach ($subcodes as $subcode)
+            {
+                echo '<li><input type="checkbox" name="' . $subcode['code'] . '"/> ' . $subcode['omschrijving'] . '</li>';
+            }
+            echo '</ul>
+            <input type="submit" value="Bekijken"/>
+            <hr/>';
         }
         ?>
-        </ul>
-        <input type="submit" value="Bekijken"/>
     </form>
     <?php
 }
 else
 {
+    $posten = DBConnection::doQueryAndReturnFetchable('SELECT code,omschrijving FROM codes ORDER BY omschrijving');
     echo '<h1>' . $_POST['jaar'] . '</h1>';
     echo '<a href="/grootboek">Terug naar selecteren</a><br />';
     while ($post = $posten->fetch())
     {
-
         if (isset($_POST[$post['code']]))
         {
             if ($_POST[$post['code']] == 'on')

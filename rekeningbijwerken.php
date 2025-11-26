@@ -36,6 +36,12 @@ if (!empty($_POST))
     }
     DBConnection::doQueryAndReturnFetchable("INSERT INTO mutaties VALUES (NULL, \"$afkorting\", \"$code\", '$datum', \"$commentaar\", \"$bij\", \"$af\", \"$btw\");");
 }
+
+$date = new \DateTime();
+$date->modify('-1 year');
+$commentHistorySql = "SELECT DISTINCT commentaar FROM mutaties WHERE datum >= '{$date->format('Y-m-d')}' AND commentaar <> '';";
+$commentHistory = DBConnection::doQueryAndReturnFetchable($commentHistorySql);
+
 $jaar = Instelling::geefInstelling('jaar');
 echo '
 <form method="post" action="rekeningbijwerken?afkorting=' . $afkorting . ($toonjaar > 0 ? '&amp;toonjaar=' . $toonjaar : '') . '">';
@@ -55,7 +61,7 @@ echo '
         </tr>
         <tr>
             <td><label for="commentaar">Commentaar:</label></td>
-            <td><input type="text" maxlength="100" name="commentaar" id="commentaar" class="form-control"/></td>
+            <td><input type="text" maxlength="100" name="commentaar" id="commentaar" class="form-control" list="comment-history"/></td>
         </tr>
         <tr>
             <td><label for="bij">Bij:</label></td>
@@ -181,5 +187,15 @@ echo '
         </tbody>
 
     </table>
+
+    <datalist id="comment-history">
+        <?php
+        foreach ($commentHistory as $commentHistoryRecord)
+        {
+            echo "<option value=\"{$commentHistoryRecord['commentaar']}\"></option>";
+        }
+        ?>
+    </datalist>
+
 <?php
 $pagina->toonPostPagina();
